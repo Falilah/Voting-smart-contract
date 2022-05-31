@@ -8,6 +8,7 @@ uint256 public regFee= 40000000000000000000 ether;//40tokens
 address chairman;
 uint32 CurrentCandidate;
 uint32 maxNoOfCandidates;
+bool voting;
 
 /////////////////*****STRUCTS ******////////////////////////
 
@@ -15,6 +16,7 @@ struct Candidate{
     uint voteCount;
 }
 
+/////////////////*****ARRAY ******////////////////////////
 
 address[] public Candidates;
 
@@ -41,6 +43,12 @@ modifier isCandidate(address Cand){
 
 modifier isParticipant( address part){
     require(ParticipantStatus[part]==true, 'this person has not registered as a participant to vote');
+    _;
+}
+
+modifier StillVoting(){
+    require(voting == true, "voting has ended");
+
     _;
 }
 
@@ -73,7 +81,7 @@ function createId() public payable {
      CurrentCandidate++;
      emit becameCandidate(_newCandidate);
  }
- function vote(address Cand) external  isCandidate(Cand){
+ function vote(address Cand) external  isCandidate(Cand) StillVoting(){
      require( ParticipantStatus[msg.sender] == true, "not a registered member");
      require(hasVoted[msg.sender] == false, "You already voted");
      hasVoted[msg.sender] = true;
@@ -108,11 +116,17 @@ function createId() public payable {
      return (CV, winner, highestVote);
  }
 
+ function setVotingState() external {
+     voting = !voting;
+ }
+
 function withdawFees() external payable{
      require(msg.sender == chairman, "not the chairman");
      payable(msg.sender).transfer(address(this).balance);
 
  }
+
+receive() external payable {}
 
 
 }
