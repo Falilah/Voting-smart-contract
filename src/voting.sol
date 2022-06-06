@@ -3,30 +3,35 @@ pragma solidity 0.8.10;
 contract Voting{
 /////////////////*****STATE VARIABLES ******////////////////////////
 
-uint256 candidateFee= 20000000000000000000;//200tokens
-uint256 public regFee= 40000000000000000000 ether;//40tokens
-address chairman;
-uint32 CurrentCandidate;
-uint32 maxNoOfCandidates;
-bool voting;
+
 
 /////////////////*****STRUCTS ******////////////////////////
 
-struct Candidate{
-    uint voteCount;
+
+struct VotingPoll{
+    address chairman;
+    address[] candidates;
+    uint16 regFee;
+    uint32 maxNoOfCandidates;
+    uint64 startTime;
+    uint64 amountGenerated;
+    uint16 currentNoOfCandidates;
+    bool voting;
+    mapping(address=>bool)  CandidateStatus;
+    mapping(address=>bool) ParticipantStatus;
+    mapping(address=>bool) hasVoted;
+    mapping (address => uint)  CandidateVote;
+
+
+
 }
+
 
 /////////////////*****ARRAY ******////////////////////////
 
-address[] public Candidates;
 
 /////////////////*****MAPPINGS *////////////////////////
-
-mapping (address => Candidate) public CandidateVote;
-mapping(address=>bool) public ParticipantStatus;
-mapping(address=>bool) public CandidateStatus;
-mapping(address=>bool) private hasVoted;
-
+mapping(string => VotingPoll) public votingPoll;
 
 /////////////////*****EVENTS ******////////////////////////
 
@@ -36,94 +41,107 @@ event registeredAsVoter(bool success);
 
 /////////////////*****MODIFIERS *****////////////////////////
 
-modifier isCandidate(address Cand){
-    require(CandidateStatus[Cand]==true,'This address does not exist as a candidate');
+modifier isCandidate(address Cand, string memory _name){
+    VotingPoll storage VP = votingPoll[_name];
+    require(VP.CandidateStatus[Cand]==true,'This address does not exist as a candidate');
     _;
 }
 
-modifier isParticipant( address part){
-    require(ParticipantStatus[part]==true, 'this person has not registered as a participant to vote');
+modifier isParticipant( address part, string memory _name){
+    VotingPoll storage VP = votingPoll[_name];
+    require(VP.ParticipantStatus[part]==true, 'this person has not registered as a participant to vote');
     _;
 }
 
-modifier StillVoting(){
-    require(voting == true, "voting has ended");
+modifier StillVoting(string memory _name){
+    VotingPoll storage VP = votingPoll[_name];
+    require(VP.voting == true, "voting has ended");
 
     _;
 }
 
 /////////////////*****CONSTRUCTORS ******////////////////////////
 
-constructor(address _chairman, uint _maxCandidate) {
-    chairman = _chairman;
-    maxNoOfCandidates = uint32(_maxCandidate);
 
-}
 
 /////////////////*****FUNCTIONS ******////////////////////////
 
-function createId() public payable {
-    require(msg.value >= regFee, "payment is less than the required registration fee fee");
-    require( ParticipantStatus[msg.sender] == false, "you are a registered member");
-    ParticipantStatus[msg.sender] == true;
-    uint refund = msg.value - regFee + candidateFee;
+
+function createPoll(string memory _name,  uint _regFee, uint16 ExpectedNoOfCandidate) external {
+    VotingPoll storage VP = votingPoll[_name];
+    VP.regFee = uint16(_regFee);
+    VP.chairman = msg.sender;
+    VP.maxNoOfCandidates =ExpectedNoOfCandidate;
+}
+
+function createId(string memory _name) public payable isParticipant(msg.sender, _name){
+    VotingPoll storage VP = votingPoll[_name];
+    require(msg.value >= VP.regFee, "payment is less than the required registration fee fee");
+    VP.ParticipantStatus[msg.sender] == true;
+    uint refund = msg.value - VP.regFee;
     if(refund > 0){
         payable(msg.sender).transfer(refund);
     }
-    
+    VP.amountGenerated += VP.regFee;
+    emit registeredAsVoter(true);
 
 }
- function AddCandidate(address _newCandidate) external isParticipant(_newCandidate){
-     require (msg.sender == chairman, "not the chairman");   
-     require(CurrentCandidate < maxNoOfCandidates, "maximum no of candidate per session registered");
-     CandidateStatus[_newCandidate] = true; 
-     Candidates.push(_newCandidate); 
-     CurrentCandidate++;
+ function AddCandidate(address _newCandidate, string memory _name) external isParticipant(_newCandidate, _name){
+     VotingPoll storage VP = votingPoll[_name];
+     require (VP.chairman != address(0) , "yet to create a poll");   
+     require(VP.currentNoOfCandidates < VP.maxNoOfCandidates, "maximum no of candidate per session registered");
+     VP.CandidateStatus[_newCandidate] = true; 
+     VP.candidates.push(_newCandidate); 
+     VP.currentNoOfCandidates++;
      emit becameCandidate(_newCandidate);
  }
- function vote(address Cand) external  isCandidate(Cand) StillVoting(){
-     require( ParticipantStatus[msg.sender] == true, "not a registered member");
-     require(hasVoted[msg.sender] == false, "You already voted");
-     hasVoted[msg.sender] = true;
-     CandidateVote[Cand].voteCount++;
-
+ function vote(address Cand, string memory _name) external  isCandidate(Cand, _name) isParticipant(msg.sender, _name) StillVoting(_name){
+     VotingPoll storage VP = votingPoll[_name];
+     require(VP.hasVoted[msg.sender] == false, "You already voted");
+     VP.hasVoted[msg.sender] = true;
+     VP.CandidateVote[Cand]++;
      emit voted(Cand, true);
 
  }
 
- function NoOfRegisteredCandidates() public view returns(uint){
-     return CurrentCandidate;
+ function NoOfRegisteredCandidates( string memory _name) public view returns(uint){
+     VotingPoll storage VP = votingPoll[_name];
+     return VP.currentNoOfCandidates;
  }
 
  
 
- function AllCandidates() public view returns(address[] memory _candidates){
-     return Candidates;
+ function AllCandidates( string memory _name) public view returns(address[] memory _candidates){
+     VotingPoll storage VP = votingPoll[_name];
+     return VP.candidates;
  }
 
- function revealWinner() external view returns ( Candidate[] memory CV, address, uint){
-     CV = new Candidate[](Candidates.length);
+ function revealWinner( string memory _name) external view returns ( uint[] memory CV, address, uint){
+     VotingPoll storage VP = votingPoll[_name];
+     CV = new uint[](VP.candidates.length);
      uint highestVote;
      address winner;
-     for (uint i =0; i <= Candidates.length; i++){
-     if(CandidateVote[Candidates[i]].voteCount > highestVote){
-         highestVote = CandidateVote[Candidates[i]].voteCount; 
-         winner = Candidates[i];
+     for (uint i =0; i <= CV.length; i++){
+     if(VP.CandidateVote[VP.candidates[i]] > highestVote){
+         highestVote = VP.CandidateVote[VP.candidates[i]]; 
+         winner = VP.candidates[i];
      }
-     CV[i] = (CandidateVote[Candidates[i]]);
+     CV[i] = (VP.CandidateVote[VP.candidates[i]]);
 
      }
      return (CV, winner, highestVote);
  }
 
- function setVotingState() external {
-     voting = !voting;
+ function setVotingState( string memory _name) external {
+    VotingPoll storage VP = votingPoll[_name];
+    require(VP.chairman == msg.sender, "not the chairman");     
+     VP.voting = !(VP.voting);
  }
 
-function withdawFees() external payable{
-     require(msg.sender == chairman, "not the chairman");
-     payable(msg.sender).transfer(address(this).balance);
-
+function withdawFees(string memory _name) external payable{
+    VotingPoll storage VP = votingPoll[_name];
+     require(msg.sender == VP.chairman, "not the chairman");
+     payable(msg.sender).transfer(VP.amountGenerated);
  }
 
 receive() external payable {}

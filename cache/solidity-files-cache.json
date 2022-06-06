@@ -122,9 +122,44 @@
         }
       }
     },
+    "/home/iwura/Documents/Voting/src/test/voting.t.sol": {
+      "lastModificationDate": 1654510588866,
+      "contentHash": "ad0f7d07fcb22e0d0dc3af76b35f8876",
+      "sourceName": "src/test/voting.t.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs"
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ]
+            }
+          },
+          "evmVersion": "london"
+        }
+      },
+      "imports": [
+        "src/voting.sol"
+      ],
+      "versionRequirement": "=0.8.10",
+      "artifacts": {}
+    },
     "/home/iwura/Documents/Voting/src/voting.sol": {
-      "lastModificationDate": 1653985420701,
-      "contentHash": "23738bb0fca707e6f21bd4efe1712bcd",
+      "lastModificationDate": 1654510270968,
+      "contentHash": "b9392db20d1e52c98840834142b06925",
       "sourceName": "src/voting.sol",
       "solcConfig": {
         "settings": {
@@ -153,11 +188,7 @@
       },
       "imports": [],
       "versionRequirement": "=0.8.10",
-      "artifacts": {
-        "Voting": {
-          "0.8.10+commit.fc410830.Linux.gcc": "voting.sol/Voting.json"
-        }
-      }
+      "artifacts": {}
     }
   }
 }
