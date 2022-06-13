@@ -27,11 +27,16 @@ struct VotingPoll{
 }
 
 
+
 /////////////////*****ARRAY ******////////////////////////
+
 
 
 /////////////////*****MAPPINGS *////////////////////////
 mapping(string => VotingPoll) public votingPoll;
+
+
+  mapping (address => uint256) public replayNonce;
 
 /////////////////*****EVENTS ******////////////////////////
 
@@ -95,14 +100,26 @@ function createId(string memory _name) public payable isParticipant(msg.sender, 
      VP.currentNoOfCandidates++;
      emit becameCandidate(_newCandidate);
  }
- function vote(address Cand, string memory _name) external  isCandidate(Cand, _name) isParticipant(msg.sender, _name) StillVoting(_name){
+
+ function vote(address Cand, string memory _name, uint256 nonce, bytes memory signature) external  isCandidate(Cand, _name) StillVoting(_name){
+     bytes32 metaHash = metaVotingHash(Cand,_name,nonce,block.timestamp);
+     address signer = getSigner(metaHash,signature);
+     require(signer!=address(0));
+    require(nonce == replayNonce[signer]);
+    replayNonce[signer]++;
      VotingPoll storage VP = votingPoll[_name];
-     require(VP.hasVoted[msg.sender] == false, "You already voted");
-     VP.hasVoted[msg.sender] = true;
-     VP.CandidateVote[Cand]++;
+     require(VP.ParticipantStatus[signer] == true, "You did not registerd for this voted");
+     require(VP.hasVoted[signer] == false, "You already voted");
+
+     countVote(Cand, _name, signer);
      emit voted(Cand, true);
 
  }
+  function countVote(address Cand, string memory _name, address signer) internal {
+     VotingPoll storage VP = votingPoll[_name];
+       VP.hasVoted[signer] = true;
+     VP.CandidateVote[Cand]++;
+  }
 
  function NoOfRegisteredCandidates( string memory _name) public view returns(uint){
      VotingPoll storage VP = votingPoll[_name];
@@ -143,6 +160,36 @@ function withdawFees(string memory _name) external payable{
      require(msg.sender == VP.chairman, "not the chairman");
      payable(msg.sender).transfer(VP.amountGenerated);
  }
+
+
+
+ function metaVotingHash(address Cand, string memory _name, uint256 nonce, uint256 time) public view returns(bytes32){
+    return keccak256(abi.encodePacked(address(this),"metatransaction Voting ", Cand, _name, nonce, time));
+  }
+
+  function getSigner(bytes32 _hash, bytes memory _signature) internal pure returns (address){
+    bytes32 r;
+    bytes32 s;
+    uint8 v;
+    if (_signature.length != 65) {
+      return address(0);
+    }
+    assembly {
+      r := mload(add(_signature, 32))
+      s := mload(add(_signature, 64))
+      v := byte(0, mload(add(_signature, 96)))
+    }
+    if (v < 27) {
+      v += 27;
+    }
+    if (v != 27 && v != 28) {
+      return address(0);
+    } else {
+      return ecrecover(keccak256(
+        abi.encodePacked("\x19Ethereum Signed Message:\n32", _hash)
+      ), v, r, s);
+    }
+  }
 
 receive() external payable {}
 

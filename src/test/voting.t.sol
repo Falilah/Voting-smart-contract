@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.10;
 
-import "lib/forge-std/src/Test.sol";
+import "forge-std/Test.sol";
 import "../voting.sol";
 
 
@@ -13,10 +13,13 @@ contract TestVoting is Test{
 
     }
 
-    function testcreatePoll() public {
-        voting.createPoll("ClassGov", 200000000000000000, 5);
-        require(voting.votingPoll["classGov"].chairman == msg.sender);
+    function testcreatePoll(string memory name) public {
+
+        voting.createPoll(name, 200000000000000000, 5);
+
         
     }
+
+    
 
 }

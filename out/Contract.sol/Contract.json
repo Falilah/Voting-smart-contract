@@ -1,35 +1,35 @@
 {
   "abi": [],
   "bytecode": {
-    "object": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea26469706673582212203a331395b08fa56cc69cdac02a3b125dba6eac0bc42dbbf1d782d44f8177c05664736f6c634300080a0033",
-    "sourceMap": "64:20:1:-:0;;;;;;;;;;;;;;;;;;;",
+    "object": "0x6080604052348015600f57600080fd5b50603f80601d6000396000f3fe6080604052600080fdfea264697066735822122094409d3769cc88ad9486016bcd43cdae076aeb88f051345d549f2672c1660c9464736f6c634300080a0033",
+    "sourceMap": "64:20:6:-:0;;;;;;;;;;;;;;;;;;;",
     "linkReferences": {}
   },
   "deployedBytecode": {
-    "object": "0x6080604052600080fdfea26469706673582212203a331395b08fa56cc69cdac02a3b125dba6eac0bc42dbbf1d782d44f8177c05664736f6c634300080a0033",
-    "sourceMap": "64:20:1:-:0;;;;;",
+    "object": "0x6080604052600080fdfea264697066735822122094409d3769cc88ad9486016bcd43cdae076aeb88f051345d549f2672c1660c9464736f6c634300080a0033",
+    "sourceMap": "64:20:6:-:0;;;;;",
     "linkReferences": {}
   },
   "ast": {
     "absolutePath": "/home/iwura/Documents/Voting/src/Contract.sol",
     "exportedSymbols": {
       "Contract": [
-        1789
+        20714
       ]
     },
-    "id": 1790,
+    "id": 20715,
     "license": "UNLICENSED",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 1788,
+        "id": 20713,
         "literals": [
           "solidity",
           "0.8",
           ".10"
         ],
         "nodeType": "PragmaDirective",
-        "src": "39:23:1"
+        "src": "39:23:6"
       },
       {
         "abstract": false,
@@ -38,19 +38,19 @@
         "contractDependencies": [],
         "contractKind": "contract",
         "fullyImplemented": true,
-        "id": 1789,
+        "id": 20714,
         "linearizedBaseContracts": [
-          1789
+          20714
         ],
         "name": "Contract",
-        "nameLocation": "73:8:1",
+        "nameLocation": "73:8:6",
         "nodeType": "ContractDefinition",
         "nodes": [],
-        "scope": 1790,
-        "src": "64:20:1",
+        "scope": 20715,
+        "src": "64:20:6",
         "usedErrors": []
       }
     ],
-    "src": "39:46:1"
+    "src": "39:46:6"
   }
 }
