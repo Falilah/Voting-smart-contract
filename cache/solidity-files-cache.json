@@ -327,8 +327,8 @@
       }
     },
     "/home/iwura/Documents/Voting/src/test/voting.t.sol": {
-      "lastModificationDate": 1655147056549,
-      "contentHash": "9fbb9c66ae1770496b787774dd3a6f29",
+      "lastModificationDate": 1655147089026,
+      "contentHash": "832d1fe69def5128035bb9ce009447dc",
       "sourceName": "src/test/voting.t.sol",
       "solcConfig": {
         "settings": {
@@ -372,8 +372,8 @@
       }
     },
     "/home/iwura/Documents/Voting/src/voting.sol": {
-      "lastModificationDate": 1655146997497,
-      "contentHash": "b6fad689ad553899338d715c948c9fc7",
+      "lastModificationDate": 1655290195377,
+      "contentHash": "d690285b3b2151277cee42aad8e638e6",
       "sourceName": "src/voting.sol",
       "solcConfig": {
         "settings": {

@@ -52,11 +52,7 @@ modifier isCandidate(address Cand, string memory _name){
     _;
 }
 
-modifier isParticipant( address part, string memory _name){
-    VotingPoll storage VP = votingPoll[_name];
-    require(VP.ParticipantStatus[part]==true, 'this person has not registered as a participant to vote');
-    _;
-}
+
 
 modifier StillVoting(string memory _name){
     VotingPoll storage VP = votingPoll[_name];
@@ -79,9 +75,9 @@ function createPoll(string memory _name,  uint _regFee, uint16 ExpectedNoOfCandi
     VP.maxNoOfCandidates =ExpectedNoOfCandidate;
 }
 
-function createId(string memory _name) public payable isParticipant(msg.sender, _name){
+function createId(string memory _name) public payable{
     VotingPoll storage VP = votingPoll[_name];
-    require(msg.value >= VP.regFee, "payment is less than the required registration fee fee");
+    require(msg.value >= VP.regFee, "payment is less than the required registration fee");
     VP.ParticipantStatus[msg.sender] == true;
     uint refund = msg.value - VP.regFee;
     if(refund > 0){
@@ -91,9 +87,10 @@ function createId(string memory _name) public payable isParticipant(msg.sender, 
     emit registeredAsVoter(true);
 
 }
- function AddCandidate(address _newCandidate, string memory _name) external isParticipant(_newCandidate, _name){
+ function AddCandidate(address _newCandidate, string memory _name) external{
      VotingPoll storage VP = votingPoll[_name];
-     require (VP.chairman != address(0) , "yet to create a poll");   
+     require (VP.chairman != address(0) , "yet to create a poll");  
+     assert(VP.chairman == msg.sender);
      require(VP.currentNoOfCandidates < VP.maxNoOfCandidates, "maximum no of candidate per session registered");
      VP.CandidateStatus[_newCandidate] = true; 
      VP.candidates.push(_newCandidate); 
@@ -108,7 +105,7 @@ function createId(string memory _name) public payable isParticipant(msg.sender, 
     require(nonce == replayNonce[signer]);
     replayNonce[signer]++;
      VotingPoll storage VP = votingPoll[_name];
-     require(VP.ParticipantStatus[signer] == true, "You did not registerd for this voted");
+     require(VP.ParticipantStatus[signer] == true, "You did not registerd for this vote");
      require(VP.hasVoted[signer] == false, "You already voted");
 
      countVote(Cand, _name, signer);
@@ -117,7 +114,7 @@ function createId(string memory _name) public payable isParticipant(msg.sender, 
  }
   function countVote(address Cand, string memory _name, address signer) internal {
      VotingPoll storage VP = votingPoll[_name];
-       VP.hasVoted[signer] = true;
+     VP.hasVoted[signer] = true;
      VP.CandidateVote[Cand]++;
   }
 
