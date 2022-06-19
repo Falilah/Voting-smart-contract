@@ -12,7 +12,7 @@ struct VotingPoll{
     address chairman;
     address[] candidates;
     uint32 maxNoOfCandidates;
-    uint16 currentNoOfCandidates;
+    uint32 currentNoOfCandidates;
     mapping(address=>bool)  CandidateStatus;
     mapping(address=>bool) hasVoted;
     mapping (address => uint)  CandidateVote;
@@ -41,6 +41,8 @@ mapping(string => VotingPoll) public votingPoll;
 
 event voted(address _candidate, bool status);
 event becameCandidate(address NewCandidate);
+event pollCreated(string indexed _name, uint32 indexed ExpectedNoOfCandidate, address indexed chairman);
+event voteStatus(bool indexed status);
 
 /////////////////*****MODIFIERS *****////////////////////////
 
@@ -49,6 +51,8 @@ modifier isCandidate(address Cand, string memory _name){
     require(VP.CandidateStatus[Cand]==true,'This address does not exist as a candidate');
     _;
 }
+
+
 
 modifier StillVoting(string memory _name){
     VotingPoll storage VP = votingPoll[_name];
@@ -64,10 +68,12 @@ modifier StillVoting(string memory _name){
 /////////////////*****FUNCTIONS ******////////////////////////
 
 
-function createPoll(string memory _name, uint16 ExpectedNoOfCandidate) external returns(string memory, uint Candidate){
+function createPoll(string memory _name, uint32 ExpectedNoOfCandidate) external returns(string memory, uint Candidate){
     VotingPoll storage VP = votingPoll[_name];
     VP.chairman = msg.sender;
     VP.maxNoOfCandidates =ExpectedNoOfCandidate;
+    emit pollCreated( _name, VP.maxNoOfCandidates, VP.chairman);
+
     return(_name, ExpectedNoOfCandidate);
 }
 
@@ -103,6 +109,13 @@ function createPoll(string memory _name, uint16 ExpectedNoOfCandidate) external 
      return VP.CandidateVote[Cand];
   }
 
+  function setVotingState( string memory _name) external {
+    VotingPoll storage VP = votingPoll[_name];
+    require(VP.chairman == msg.sender, "not the chairman");     
+     VP.voting = !(VP.voting);
+     emit voteStatus(VP.voting);
+ }
+
  function NoOfRegisteredCandidates( string memory _name) public view returns(uint){
      VotingPoll storage VP = votingPoll[_name];
      return VP.currentNoOfCandidates;
@@ -133,11 +146,7 @@ function createPoll(string memory _name, uint16 ExpectedNoOfCandidate) external 
      return (CV, winner, highestVote);
  }
 
- function setVotingState( string memory _name) external {
-    VotingPoll storage VP = votingPoll[_name];
-    require(VP.chairman == msg.sender, "not the chairman");     
-     VP.voting = !(VP.voting);
- }
+ 
 
  function getPosition( string memory _name, uint i) internal view returns(uint val){
      VotingPoll storage VP = votingPoll[_name];

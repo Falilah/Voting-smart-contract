@@ -372,8 +372,8 @@
       }
     },
     "/home/iwura/Documents/Voting/src/voting.sol": {
-      "lastModificationDate": 1655636936658,
-      "contentHash": "e07b4d0d50ff70da2367e8bba53fcb14",
+      "lastModificationDate": 1655662106083,
+      "contentHash": "399c8f855ff9275d2f4f96627a3deece",
       "sourceName": "src/voting.sol",
       "solcConfig": {
         "settings": {
