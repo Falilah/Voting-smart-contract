@@ -17,15 +17,21 @@ struct VotingPoll{
     mapping(address=>bool) hasVoted;
     mapping (address => uint)  CandidateVote;
     bool voting;
-
-
-
-
 }
+
+struct retVotingPoll{
+    address chairman;
+    address[] candidates;
+    uint32 maxNoOfCandidates;
+    uint32 currentNoOfCandidates;
+    bool voting;
+    }
 
 
 
 /////////////////*****ARRAY ******////////////////////////
+
+string[] public VotingKey;
 
 
 
@@ -72,6 +78,7 @@ function createPoll(string memory _name, uint32 ExpectedNoOfCandidate) external 
     VotingPoll storage VP = votingPoll[_name];
     VP.chairman = msg.sender;
     VP.maxNoOfCandidates =ExpectedNoOfCandidate;
+    VotingKey.push(_name);
     emit pollCreated( _name, VP.maxNoOfCandidates, VP.chairman);
 
     return(_name, ExpectedNoOfCandidate);
@@ -151,6 +158,17 @@ function createPoll(string memory _name, uint32 ExpectedNoOfCandidate) external 
  function getPosition( string memory _name, uint i) internal view returns(uint val){
      VotingPoll storage VP = votingPoll[_name];
        val = VP.CandidateVote[VP.candidates[i]];
+ }
+
+ function getStructProps() external view returns(retVotingPoll[] memory RVP){
+  RVP = new  retVotingPoll[](VotingKey.length);
+  for (uint i; i >= VotingKey.length; i++){
+    RVP[i].chairman = votingPoll[VotingKey[i]].chairman;
+    RVP[i].maxNoOfCandidates = votingPoll[VotingKey[i]].maxNoOfCandidates;
+    RVP[i].currentNoOfCandidates = votingPoll[VotingKey[i]].currentNoOfCandidates;
+    RVP[i].voting = votingPoll[VotingKey[i]].voting;
+
+  }
  }
 
 

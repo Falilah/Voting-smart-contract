@@ -22,6 +22,44 @@
 				"anonymous": false,
 				"inputs": [
 					{
+						"indexed": true,
+						"internalType": "string",
+						"name": "_name",
+						"type": "string"
+					},
+					{
+						"indexed": true,
+						"internalType": "uint32",
+						"name": "ExpectedNoOfCandidate",
+						"type": "uint32"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "chairman",
+						"type": "address"
+					}
+				],
+				"name": "pollCreated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "bool",
+						"name": "status",
+						"type": "bool"
+					}
+				],
+				"name": "voteStatus",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
 						"indexed": false,
 						"internalType": "address",
 						"name": "_candidate",
@@ -101,9 +139,9 @@
 						"type": "string"
 					},
 					{
-						"internalType": "uint16",
+						"internalType": "uint32",
 						"name": "ExpectedNoOfCandidate",
-						"type": "uint16"
+						"type": "uint32"
 					}
 				],
 				"name": "createPoll",
@@ -266,9 +304,9 @@
 						"type": "uint32"
 					},
 					{
-						"internalType": "uint16",
+						"internalType": "uint32",
 						"name": "currentNoOfCandidates",
-						"type": "uint16"
+						"type": "uint32"
 					},
 					{
 						"internalType": "bool",
@@ -308,11 +346,11 @@
 	},
 	"sources": {
 		"src/voting.sol": {
-			"keccak256": "0x4d67b3b5bfe329fe7090bf64667562e7b1bf2a1bd96ee02bcc691e6bca2d5190",
+			"keccak256": "0x1d3c6c8d000f8da002e7f8cf9f475a4121606ea4f765fea8e087b9a4a933abe2",
 			"license": "UNLICENSED",
 			"urls": [
-				"bzz-raw://c0061f7c701ba1ae98a81d7d2109f64772b3603658d41128e491f808ca8d9ab0",
-				"dweb:/ipfs/QmamHpGBvGuAEFqeiZYucudiAByQar5NvadPjUuy1EvNWY"
+				"bzz-raw://cd0f878484e064da45ca15859031b51a398fdba1c3c121201606fac3b5d2e43f",
+				"dweb:/ipfs/QmUawHNANcbEfVhpQXi8i22CqheyVHHfS9PVcNxoFGNyjA"
 			]
 		}
 	},
