@@ -11,16 +11,13 @@ contract Voting{
 struct VotingPoll{
     address chairman;
     address[] candidates;
-    uint16 regFee;
     uint32 maxNoOfCandidates;
-    uint64 startTime;
-    uint64 amountGenerated;
     uint16 currentNoOfCandidates;
-    bool voting;
     mapping(address=>bool)  CandidateStatus;
-    mapping(address=>bool) ParticipantStatus;
     mapping(address=>bool) hasVoted;
     mapping (address => uint)  CandidateVote;
+    bool voting;
+
 
 
 
@@ -29,6 +26,8 @@ struct VotingPoll{
 
 
 /////////////////*****ARRAY ******////////////////////////
+
+
 
 
 
@@ -42,7 +41,6 @@ mapping(string => VotingPoll) public votingPoll;
 
 event voted(address _candidate, bool status);
 event becameCandidate(address NewCandidate);
-event registeredAsVoter(bool success);
 
 /////////////////*****MODIFIERS *****////////////////////////
 
@@ -51,8 +49,6 @@ modifier isCandidate(address Cand, string memory _name){
     require(VP.CandidateStatus[Cand]==true,'This address does not exist as a candidate');
     _;
 }
-
-
 
 modifier StillVoting(string memory _name){
     VotingPoll storage VP = votingPoll[_name];
@@ -68,25 +64,14 @@ modifier StillVoting(string memory _name){
 /////////////////*****FUNCTIONS ******////////////////////////
 
 
-function createPoll(string memory _name,  uint _regFee, uint16 ExpectedNoOfCandidate) external {
+function createPoll(string memory _name, uint16 ExpectedNoOfCandidate) external returns(string memory, uint Candidate){
     VotingPoll storage VP = votingPoll[_name];
-    VP.regFee = uint16(_regFee);
     VP.chairman = msg.sender;
     VP.maxNoOfCandidates =ExpectedNoOfCandidate;
+    return(_name, ExpectedNoOfCandidate);
 }
 
-function createId(string memory _name) public payable{
-    VotingPoll storage VP = votingPoll[_name];
-    require(msg.value >= VP.regFee, "payment is less than the required registration fee");
-    VP.ParticipantStatus[msg.sender] == true;
-    uint refund = msg.value - VP.regFee;
-    if(refund > 0){
-        payable(msg.sender).transfer(refund);
-    }
-    VP.amountGenerated += VP.regFee;
-    emit registeredAsVoter(true);
 
-}
  function AddCandidate(address _newCandidate, string memory _name) external{
      VotingPoll storage VP = votingPoll[_name];
      require (VP.chairman != address(0) , "yet to create a poll");  
@@ -98,24 +83,24 @@ function createId(string memory _name) public payable{
      emit becameCandidate(_newCandidate);
  }
 
- function vote(address Cand, string memory _name, uint256 nonce, bytes memory signature) external  isCandidate(Cand, _name) StillVoting(_name){
+ function vote(address Cand, string memory _name , uint256 nonce, bytes memory signature) external  isCandidate(Cand, _name) StillVoting(_name){
      bytes32 metaHash = metaVotingHash(Cand,_name,nonce,block.timestamp);
      address signer = getSigner(metaHash,signature);
      require(signer!=address(0));
     require(nonce == replayNonce[signer]);
     replayNonce[signer]++;
      VotingPoll storage VP = votingPoll[_name];
-     require(VP.ParticipantStatus[signer] == true, "You did not registerd for this vote");
      require(VP.hasVoted[signer] == false, "You already voted");
 
      countVote(Cand, _name, signer);
      emit voted(Cand, true);
 
  }
-  function countVote(address Cand, string memory _name, address signer) internal {
+  function countVote(address Cand, string memory _name, address signer) internal returns(uint){
      VotingPoll storage VP = votingPoll[_name];
      VP.hasVoted[signer] = true;
      VP.CandidateVote[Cand]++;
+     return VP.CandidateVote[Cand];
   }
 
  function NoOfRegisteredCandidates( string memory _name) public view returns(uint){
@@ -123,7 +108,7 @@ function createId(string memory _name) public payable{
      return VP.currentNoOfCandidates;
  }
 
- 
+   
 
  function AllCandidates( string memory _name) public view returns(address[] memory _candidates){
      VotingPoll storage VP = votingPoll[_name];
@@ -132,12 +117,14 @@ function createId(string memory _name) public payable{
 
  function revealWinner( string memory _name) external view returns ( uint[] memory CV, address, uint){
      VotingPoll storage VP = votingPoll[_name];
+     require(VP.chairman != address(0), "No poll created");
      CV = new uint[](VP.candidates.length);
      uint highestVote;
      address winner;
-     for (uint i =0; i <= CV.length; i++){
-     if(VP.CandidateVote[VP.candidates[i]] > highestVote){
-         highestVote = VP.CandidateVote[VP.candidates[i]]; 
+     for (uint i =0; i <= VP.candidates.length; i++){
+       uint val = getPosition(_name,i);
+     if(val > highestVote){
+         highestVote = val; 
          winner = VP.candidates[i];
      }
      CV[i] = (VP.CandidateVote[VP.candidates[i]]);
@@ -152,10 +139,9 @@ function createId(string memory _name) public payable{
      VP.voting = !(VP.voting);
  }
 
-function withdawFees(string memory _name) external payable{
-    VotingPoll storage VP = votingPoll[_name];
-     require(msg.sender == VP.chairman, "not the chairman");
-     payable(msg.sender).transfer(VP.amountGenerated);
+ function getPosition( string memory _name, uint i) internal view returns(uint val){
+     VotingPoll storage VP = votingPoll[_name];
+       val = VP.CandidateVote[VP.candidates[i]];
  }
 
 
@@ -187,8 +173,6 @@ function withdawFees(string memory _name) external payable{
       ), v, r, s);
     }
   }
-
-receive() external payable {}
 
 
 }

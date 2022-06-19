@@ -14,8 +14,11 @@ contract TestVoting is Test{
     }
 
     function testcreatePoll(string memory name) public {
+        
 
-        voting.createPoll(name, 200000000000000000, 5);
+        // voting.createPoll(name, 200000000000000000, 5);
+        
+        // require(votingPoll[name].maxNoOfCandidates == 5);
 
         
     }
