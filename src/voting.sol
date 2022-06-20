@@ -2,6 +2,7 @@
 pragma solidity 0.8.10;
 contract Voting{
 /////////////////*****STATE VARIABLES ******////////////////////////
+uint id = 1;
 
 
 
@@ -9,59 +10,51 @@ contract Voting{
 
 
 struct VotingPoll{
+    string name;
     address chairman;
     address[] candidates;
     uint32 maxNoOfCandidates;
     uint32 currentNoOfCandidates;
-    mapping(address=>bool)  CandidateStatus;
-    mapping(address=>bool) hasVoted;
-    mapping (address => uint)  CandidateVote;
     bool voting;
 }
 
-struct retVotingPoll{
-    address chairman;
-    address[] candidates;
-    uint32 maxNoOfCandidates;
-    uint32 currentNoOfCandidates;
-    bool voting;
-    }
 
 
 
 /////////////////*****ARRAY ******////////////////////////
 
-string[] public VotingKey;
+uint[] public VotingKey;
+VotingPoll[] public VotingStruct;
 
 
 
 
 
 /////////////////*****MAPPINGS *////////////////////////
-mapping(string => VotingPoll) public votingPoll;
-
-
-  mapping (address => uint256) public replayNonce;
+mapping(uint => VotingPoll) public votingPoll;
+mapping (address => uint256) public replayNonce;
+mapping (uint => mapping(address=>bool))  CandidateStatus; 
+mapping(uint => mapping (address => uint))  CandidateVote;    
+mapping (uint => mapping(address=>bool)) hasVoted;
 
 /////////////////*****EVENTS ******////////////////////////
 
 event voted(address _candidate, bool status);
 event becameCandidate(address NewCandidate);
-event pollCreated(string indexed _name, uint32 indexed ExpectedNoOfCandidate, address indexed chairman);
+event pollCreated(string indexed _name, uint32 indexed ExpectedNoOfCandidate, uint indexed _id);
 event voteStatus(bool indexed status);
 
 /////////////////*****MODIFIERS *****////////////////////////
 
-modifier isCandidate(address Cand, string memory _name){
-    VotingPoll storage VP = votingPoll[_name];
-    require(VP.CandidateStatus[Cand]==true,'This address does not exist as a candidate');
+modifier isCandidate(address Cand, uint _id){
+    require(CandidateStatus[_id][Cand]==true,'This address does not exist as a candidate');
     _;
 }
 
 
 
-modifier StillVoting(string memory _name){
-    VotingPoll storage VP = votingPoll[_name];
+modifier StillVoting(uint _id){
+    VotingPoll storage VP = votingPoll[_id];
     require(VP.voting == true, "voting has ended");
 
     _;
@@ -74,80 +67,78 @@ modifier StillVoting(string memory _name){
 /////////////////*****FUNCTIONS ******////////////////////////
 
 
-function createPoll(string memory _name, uint32 ExpectedNoOfCandidate) external returns(string memory, uint Candidate){
-    VotingPoll storage VP = votingPoll[_name];
+function createPoll(string memory _name, uint32 ExpectedNoOfCandidate) external {
+    VotingPoll storage VP = votingPoll[id];
+    VP.name = _name;
     VP.chairman = msg.sender;
     VP.maxNoOfCandidates =ExpectedNoOfCandidate;
-    VotingKey.push(_name);
-    emit pollCreated( _name, VP.maxNoOfCandidates, VP.chairman);
+    VotingKey.push(id);
+    emit pollCreated( _name, VP.maxNoOfCandidates, id);
 
-    return(_name, ExpectedNoOfCandidate);
+    id++;
+
 }
 
 
- function AddCandidate(address _newCandidate, string memory _name) external{
-     VotingPoll storage VP = votingPoll[_name];
+ function AddCandidate(address _newCandidate, uint _id) external{
+     VotingPoll storage VP = votingPoll[_id];
      require (VP.chairman != address(0) , "yet to create a poll");  
      assert(VP.chairman == msg.sender);
      require(VP.currentNoOfCandidates < VP.maxNoOfCandidates, "maximum no of candidate per session registered");
-     VP.CandidateStatus[_newCandidate] = true; 
+     CandidateStatus[_id][_newCandidate] = true; 
      VP.candidates.push(_newCandidate); 
      VP.currentNoOfCandidates++;
      emit becameCandidate(_newCandidate);
  }
 
- function vote(address Cand, string memory _name , uint256 nonce, bytes memory signature) external  isCandidate(Cand, _name) StillVoting(_name){
-     bytes32 metaHash = metaVotingHash(Cand,_name,nonce,block.timestamp);
+ function vote(address Cand, uint _id, uint256 nonce, bytes memory signature) external  isCandidate(Cand, _id) StillVoting(_id){
+     bytes32 metaHash = metaVotingHash(Cand,_id,nonce,block.timestamp);
      address signer = getSigner(metaHash,signature);
      require(signer!=address(0));
     require(nonce == replayNonce[signer]);
     replayNonce[signer]++;
-     VotingPoll storage VP = votingPoll[_name];
-     require(VP.hasVoted[signer] == false, "You already voted");
+     require(hasVoted[_id][signer] == false, "You already voted");
 
-     countVote(Cand, _name, signer);
+     countVote(Cand, _id, signer);
      emit voted(Cand, true);
 
  }
-  function countVote(address Cand, string memory _name, address signer) internal returns(uint){
-     VotingPoll storage VP = votingPoll[_name];
-     VP.hasVoted[signer] = true;
-     VP.CandidateVote[Cand]++;
-     return VP.CandidateVote[Cand];
+  function countVote(address Cand, uint _id, address signer) internal returns(uint){
+     hasVoted[_id][signer] = true;
+     CandidateVote[_id][Cand]++;
+     return CandidateVote[_id][Cand];
   }
 
-  function setVotingState( string memory _name) external {
-    VotingPoll storage VP = votingPoll[_name];
+  function setVotingState( uint _id) external {
+    VotingPoll storage VP = votingPoll[_id];
     require(VP.chairman == msg.sender, "not the chairman");     
      VP.voting = !(VP.voting);
      emit voteStatus(VP.voting);
  }
 
- function NoOfRegisteredCandidates( string memory _name) public view returns(uint){
-     VotingPoll storage VP = votingPoll[_name];
+ function NoOfRegisteredCandidates( uint _id) public view returns(uint){
+     VotingPoll storage VP = votingPoll[_id];
      return VP.currentNoOfCandidates;
- }
+ }  
 
-   
-
- function AllCandidates( string memory _name) public view returns(address[] memory _candidates){
-     VotingPoll storage VP = votingPoll[_name];
+ function AllCandidates( uint _id) public view returns(address[] memory _candidates){
+     VotingPoll storage VP = votingPoll[_id];
      return VP.candidates;
  }
 
- function revealWinner( string memory _name) external view returns ( uint[] memory CV, address, uint){
-     VotingPoll storage VP = votingPoll[_name];
+ function revealWinner( uint _id) external view returns ( uint[] memory CV, address, uint){
+     VotingPoll storage VP = votingPoll[_id];
      require(VP.chairman != address(0), "No poll created");
      CV = new uint[](VP.candidates.length);
      uint highestVote;
      address winner;
      for (uint i =0; i <= VP.candidates.length; i++){
-       uint val = getPosition(_name,i);
+       uint val = getPosition(_id,i);
      if(val > highestVote){
          highestVote = val; 
          winner = VP.candidates[i];
      }
-     CV[i] = (VP.CandidateVote[VP.candidates[i]]);
+     CV[i] = (CandidateVote[_id][VP.candidates[i]]);
 
      }
      return (CV, winner, highestVote);
@@ -155,26 +146,21 @@ function createPoll(string memory _name, uint32 ExpectedNoOfCandidate) external 
 
  
 
- function getPosition( string memory _name, uint i) internal view returns(uint val){
-     VotingPoll storage VP = votingPoll[_name];
-       val = VP.CandidateVote[VP.candidates[i]];
+ function getPosition( uint _id, uint i) internal view returns(uint val){
+     VotingPoll storage VP = votingPoll[_id];
+       val = CandidateVote[_id][VP.candidates[i]];
  }
 
- function getStructProps() external view returns(retVotingPoll[] memory RVP){
-  RVP = new  retVotingPoll[](VotingKey.length);
-  for (uint i; i >= VotingKey.length; i++){
-    RVP[i].chairman = votingPoll[VotingKey[i]].chairman;
-    RVP[i].maxNoOfCandidates = votingPoll[VotingKey[i]].maxNoOfCandidates;
-    RVP[i].currentNoOfCandidates = votingPoll[VotingKey[i]].currentNoOfCandidates;
-    RVP[i].voting = votingPoll[VotingKey[i]].voting;
+ 
 
-  }
+ function getVotePollProps(uint _id) external view returns(VotingPoll memory){
+   return votingPoll[_id];
  }
 
 
 
- function metaVotingHash(address Cand, string memory _name, uint256 nonce, uint256 time) public view returns(bytes32){
-    return keccak256(abi.encodePacked(address(this),"metatransaction Voting ", Cand, _name, nonce, time));
+ function metaVotingHash(address Cand, uint _id, uint256 nonce, uint256 time) public view returns(bytes32){
+    return keccak256(abi.encodePacked(address(this),"metatransaction Voting ", Cand, _id, nonce, time));
   }
 
   function getSigner(bytes32 _hash, bytes memory _signature) internal pure returns (address){

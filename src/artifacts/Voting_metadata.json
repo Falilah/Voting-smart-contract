@@ -35,9 +35,9 @@
 					},
 					{
 						"indexed": true,
-						"internalType": "address",
-						"name": "chairman",
-						"type": "address"
+						"internalType": "uint256",
+						"name": "_id",
+						"type": "uint256"
 					}
 				],
 				"name": "pollCreated",
@@ -83,9 +83,9 @@
 						"type": "address"
 					},
 					{
-						"internalType": "string",
-						"name": "_name",
-						"type": "string"
+						"internalType": "uint256",
+						"name": "_id",
+						"type": "uint256"
 					}
 				],
 				"name": "AddCandidate",
@@ -96,9 +96,9 @@
 			{
 				"inputs": [
 					{
-						"internalType": "string",
-						"name": "_name",
-						"type": "string"
+						"internalType": "uint256",
+						"name": "_id",
+						"type": "uint256"
 					}
 				],
 				"name": "AllCandidates",
@@ -115,9 +115,9 @@
 			{
 				"inputs": [
 					{
-						"internalType": "string",
-						"name": "_name",
-						"type": "string"
+						"internalType": "uint256",
+						"name": "_id",
+						"type": "uint256"
 					}
 				],
 				"name": "NoOfRegisteredCandidates",
@@ -126,6 +126,64 @@
 						"internalType": "uint256",
 						"name": "",
 						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "VotingKey",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "VotingStruct",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "name",
+						"type": "string"
+					},
+					{
+						"internalType": "address",
+						"name": "chairman",
+						"type": "address"
+					},
+					{
+						"internalType": "uint32",
+						"name": "maxNoOfCandidates",
+						"type": "uint32"
+					},
+					{
+						"internalType": "uint32",
+						"name": "currentNoOfCandidates",
+						"type": "uint32"
+					},
+					{
+						"internalType": "bool",
+						"name": "voting",
+						"type": "bool"
 					}
 				],
 				"stateMutability": "view",
@@ -145,19 +203,59 @@
 					}
 				],
 				"name": "createPoll",
-				"outputs": [
-					{
-						"internalType": "string",
-						"name": "",
-						"type": "string"
-					},
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
 					{
 						"internalType": "uint256",
-						"name": "Candidate",
+						"name": "_id",
 						"type": "uint256"
 					}
 				],
-				"stateMutability": "nonpayable",
+				"name": "getVotePollProps",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "string",
+								"name": "name",
+								"type": "string"
+							},
+							{
+								"internalType": "address",
+								"name": "chairman",
+								"type": "address"
+							},
+							{
+								"internalType": "address[]",
+								"name": "candidates",
+								"type": "address[]"
+							},
+							{
+								"internalType": "uint32",
+								"name": "maxNoOfCandidates",
+								"type": "uint32"
+							},
+							{
+								"internalType": "uint32",
+								"name": "currentNoOfCandidates",
+								"type": "uint32"
+							},
+							{
+								"internalType": "bool",
+								"name": "voting",
+								"type": "bool"
+							}
+						],
+						"internalType": "struct Voting.VotingPoll",
+						"name": "",
+						"type": "tuple"
+					}
+				],
+				"stateMutability": "view",
 				"type": "function"
 			},
 			{
@@ -168,9 +266,9 @@
 						"type": "address"
 					},
 					{
-						"internalType": "string",
-						"name": "_name",
-						"type": "string"
+						"internalType": "uint256",
+						"name": "_id",
+						"type": "uint256"
 					},
 					{
 						"internalType": "uint256",
@@ -216,9 +314,9 @@
 			{
 				"inputs": [
 					{
-						"internalType": "string",
-						"name": "_name",
-						"type": "string"
+						"internalType": "uint256",
+						"name": "_id",
+						"type": "uint256"
 					}
 				],
 				"name": "revealWinner",
@@ -245,9 +343,9 @@
 			{
 				"inputs": [
 					{
-						"internalType": "string",
-						"name": "_name",
-						"type": "string"
+						"internalType": "uint256",
+						"name": "_id",
+						"type": "uint256"
 					}
 				],
 				"name": "setVotingState",
@@ -263,9 +361,9 @@
 						"type": "address"
 					},
 					{
-						"internalType": "string",
-						"name": "_name",
-						"type": "string"
+						"internalType": "uint256",
+						"name": "_id",
+						"type": "uint256"
 					},
 					{
 						"internalType": "uint256",
@@ -286,13 +384,18 @@
 			{
 				"inputs": [
 					{
-						"internalType": "string",
+						"internalType": "uint256",
 						"name": "",
-						"type": "string"
+						"type": "uint256"
 					}
 				],
 				"name": "votingPoll",
 				"outputs": [
+					{
+						"internalType": "string",
+						"name": "name",
+						"type": "string"
+					},
 					{
 						"internalType": "address",
 						"name": "chairman",
@@ -346,11 +449,11 @@
 	},
 	"sources": {
 		"src/voting.sol": {
-			"keccak256": "0x1d3c6c8d000f8da002e7f8cf9f475a4121606ea4f765fea8e087b9a4a933abe2",
+			"keccak256": "0x2d7fe6021e32210b26b5da01830168711cd0bdfe93df7b92a23881748e6d392e",
 			"license": "UNLICENSED",
 			"urls": [
-				"bzz-raw://cd0f878484e064da45ca15859031b51a398fdba1c3c121201606fac3b5d2e43f",
-				"dweb:/ipfs/QmUawHNANcbEfVhpQXi8i22CqheyVHHfS9PVcNxoFGNyjA"
+				"bzz-raw://7753e37b0ef3370cfb1b489e0dbe85896f01575e102e48785f8e26c4ab9e0d0c",
+				"dweb:/ipfs/QmbHtsMxwtb8YE84EtwmMG5kpeqK9h8Y9T1xxKrUaJXcWP"
 			]
 		}
 	},
