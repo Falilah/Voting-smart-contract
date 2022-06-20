@@ -24,10 +24,6 @@ struct VotingPoll{
 /////////////////*****ARRAY ******////////////////////////
 
 uint[] public VotingKey;
-VotingPoll[] public VotingStruct;
-
-
-
 
 
 /////////////////*****MAPPINGS *////////////////////////
@@ -50,22 +46,16 @@ modifier isCandidate(address Cand, uint _id){
     require(CandidateStatus[_id][Cand]==true,'This address does not exist as a candidate');
     _;
 }
-
-
-
 modifier StillVoting(uint _id){
     VotingPoll storage VP = votingPoll[_id];
     require(VP.voting == true, "voting has ended");
-
-    _;
+        _;
 }
 
 /////////////////*****CONSTRUCTORS ******////////////////////////
 
 
-
 /////////////////*****FUNCTIONS ******////////////////////////
-
 
 function createPoll(string memory _name, uint32 ExpectedNoOfCandidate) external {
     VotingPoll storage VP = votingPoll[id];
@@ -78,7 +68,6 @@ function createPoll(string memory _name, uint32 ExpectedNoOfCandidate) external 
     id++;
 
 }
-
 
  function AddCandidate(address _newCandidate, uint _id) external{
      VotingPoll storage VP = votingPoll[_id];
@@ -98,11 +87,11 @@ function createPoll(string memory _name, uint32 ExpectedNoOfCandidate) external 
     require(nonce == replayNonce[signer]);
     replayNonce[signer]++;
      require(hasVoted[_id][signer] == false, "You already voted");
-
      countVote(Cand, _id, signer);
      emit voted(Cand, true);
 
  }
+
   function countVote(address Cand, uint _id, address signer) internal returns(uint){
      hasVoted[_id][signer] = true;
      CandidateVote[_id][Cand]++;
@@ -132,7 +121,7 @@ function createPoll(string memory _name, uint32 ExpectedNoOfCandidate) external 
      CV = new uint[](VP.candidates.length);
      uint highestVote;
      address winner;
-     for (uint i =0; i <= VP.candidates.length; i++){
+     for (uint i = 0; i < VP.candidates.length; i++){
        uint val = getPosition(_id,i);
      if(val > highestVote){
          highestVote = val; 
@@ -146,19 +135,18 @@ function createPoll(string memory _name, uint32 ExpectedNoOfCandidate) external 
 
  
 
- function getPosition( uint _id, uint i) internal view returns(uint val){
+ function getPosition( uint _id, uint i) private view returns(uint val){
      VotingPoll storage VP = votingPoll[_id];
        val = CandidateVote[_id][VP.candidates[i]];
  }
 
  
 
- function getVotePollProps(uint _id) external view returns(VotingPoll memory){
+ function getVotePollProps(uint _id) public view returns(VotingPoll memory){
    return votingPoll[_id];
  }
 
-
-
+ 
  function metaVotingHash(address Cand, uint _id, uint256 nonce, uint256 time) public view returns(bytes32){
     return keccak256(abi.encodePacked(address(this),"metatransaction Voting ", Cand, _id, nonce, time));
   }

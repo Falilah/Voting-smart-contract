@@ -153,45 +153,6 @@
 			{
 				"inputs": [
 					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"name": "VotingStruct",
-				"outputs": [
-					{
-						"internalType": "string",
-						"name": "name",
-						"type": "string"
-					},
-					{
-						"internalType": "address",
-						"name": "chairman",
-						"type": "address"
-					},
-					{
-						"internalType": "uint32",
-						"name": "maxNoOfCandidates",
-						"type": "uint32"
-					},
-					{
-						"internalType": "uint32",
-						"name": "currentNoOfCandidates",
-						"type": "uint32"
-					},
-					{
-						"internalType": "bool",
-						"name": "voting",
-						"type": "bool"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
 						"internalType": "string",
 						"name": "_name",
 						"type": "string"
@@ -449,11 +410,11 @@
 	},
 	"sources": {
 		"src/voting.sol": {
-			"keccak256": "0x2d7fe6021e32210b26b5da01830168711cd0bdfe93df7b92a23881748e6d392e",
+			"keccak256": "0x29b234fad92d8aa8e0ff3521ba69aa453d5034a5b9a3ce110812177012b03c67",
 			"license": "UNLICENSED",
 			"urls": [
-				"bzz-raw://7753e37b0ef3370cfb1b489e0dbe85896f01575e102e48785f8e26c4ab9e0d0c",
-				"dweb:/ipfs/QmbHtsMxwtb8YE84EtwmMG5kpeqK9h8Y9T1xxKrUaJXcWP"
+				"bzz-raw://c5007f4a8098e3c65ed803fee11b37a076666eda04355fd7e64b0d63c10c11bd",
+				"dweb:/ipfs/QmXK55cFMf1sy1bkuQDw4DbcLi3XXtGv7p4Ub4aR3R6TPo"
 			]
 		}
 	},
