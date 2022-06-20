@@ -24,6 +24,7 @@ struct VotingPoll{
 /////////////////*****ARRAY ******////////////////////////
 
 uint[] public VotingKey;
+VotingPoll[] public retVotingPoll;
 
 
 /////////////////*****MAPPINGS *////////////////////////
@@ -62,7 +63,7 @@ function createPoll(string memory _name, uint32 ExpectedNoOfCandidate) external 
     VP.name = _name;
     VP.chairman = msg.sender;
     VP.maxNoOfCandidates =ExpectedNoOfCandidate;
-    VotingKey.push(id);
+    retVotingPoll.push(VP);
     emit pollCreated( _name, VP.maxNoOfCandidates, id);
 
     id++;
@@ -144,6 +145,13 @@ function createPoll(string memory _name, uint32 ExpectedNoOfCandidate) external 
 
  function getVotePollProps(uint _id) public view returns(VotingPoll memory){
    return votingPoll[_id];
+ }
+
+ function getAllVotingPolls() external view returns(VotingPoll[] memory VP){
+  VP = new VotingPoll[](id);
+  for(uint i = 0; i< id; i++){
+    VP[i] = getVotePollProps(i++);
+  }
  }
 
  

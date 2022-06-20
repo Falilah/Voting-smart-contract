@@ -169,6 +169,51 @@
 				"type": "function"
 			},
 			{
+				"inputs": [],
+				"name": "getAllVotingPolls",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "string",
+								"name": "name",
+								"type": "string"
+							},
+							{
+								"internalType": "address",
+								"name": "chairman",
+								"type": "address"
+							},
+							{
+								"internalType": "address[]",
+								"name": "candidates",
+								"type": "address[]"
+							},
+							{
+								"internalType": "uint32",
+								"name": "maxNoOfCandidates",
+								"type": "uint32"
+							},
+							{
+								"internalType": "uint32",
+								"name": "currentNoOfCandidates",
+								"type": "uint32"
+							},
+							{
+								"internalType": "bool",
+								"name": "voting",
+								"type": "bool"
+							}
+						],
+						"internalType": "struct Voting.VotingPoll[]",
+						"name": "VP",
+						"type": "tuple[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "uint256",
@@ -267,6 +312,45 @@
 						"internalType": "uint256",
 						"name": "",
 						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "retVotingPoll",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "name",
+						"type": "string"
+					},
+					{
+						"internalType": "address",
+						"name": "chairman",
+						"type": "address"
+					},
+					{
+						"internalType": "uint32",
+						"name": "maxNoOfCandidates",
+						"type": "uint32"
+					},
+					{
+						"internalType": "uint32",
+						"name": "currentNoOfCandidates",
+						"type": "uint32"
+					},
+					{
+						"internalType": "bool",
+						"name": "voting",
+						"type": "bool"
 					}
 				],
 				"stateMutability": "view",
@@ -410,11 +494,11 @@
 	},
 	"sources": {
 		"src/voting.sol": {
-			"keccak256": "0x29b234fad92d8aa8e0ff3521ba69aa453d5034a5b9a3ce110812177012b03c67",
+			"keccak256": "0x108e6b110b8ca9d2fb1ce8898833b7968c43380899c50684e9cc15efa4c9df3e",
 			"license": "UNLICENSED",
 			"urls": [
-				"bzz-raw://c5007f4a8098e3c65ed803fee11b37a076666eda04355fd7e64b0d63c10c11bd",
-				"dweb:/ipfs/QmXK55cFMf1sy1bkuQDw4DbcLi3XXtGv7p4Ub4aR3R6TPo"
+				"bzz-raw://2bfcf516f4ca47b69cbf17d90ecb3e521136257f10e325fc73baa3186ccaaa71",
+				"dweb:/ipfs/QmVcBtj4Rn4pC6XVbWgTDFA5FzFUao1zVxxEbQNchBCTtT"
 			]
 		}
 	},
