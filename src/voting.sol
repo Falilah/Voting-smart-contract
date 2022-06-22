@@ -10,6 +10,7 @@ uint id = 1;
 
 
 struct VotingPoll{
+    uint id;
     string name;
     address chairman;
     address[] candidates;
@@ -26,6 +27,7 @@ struct VotingPoll{
 uint[] public VotingKey;
 VotingPoll[] public retVotingPoll;
 
+uint[] public _ids;
 
 /////////////////*****MAPPINGS *////////////////////////
 mapping(uint => VotingPoll) public votingPoll;
@@ -62,10 +64,11 @@ function createPoll(string memory _name, uint32 ExpectedNoOfCandidate) external 
     VotingPoll storage VP = votingPoll[id];
     VP.name = _name;
     VP.chairman = msg.sender;
+    VP.id =id;
     VP.maxNoOfCandidates =ExpectedNoOfCandidate;
     retVotingPoll.push(VP);
     emit pollCreated( _name, VP.maxNoOfCandidates, id);
-
+    _ids.push(id);
     id++;
 
 }
@@ -183,5 +186,8 @@ function createPoll(string memory _name, uint32 ExpectedNoOfCandidate) external 
     }
   }
 
+function allIds() public view returns(uint[] memory){
+return _ids;
+}
 
 }
